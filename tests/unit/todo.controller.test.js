@@ -17,21 +17,21 @@ describe('ToDoController.createToDo', () => {
         req.body = newTodo
     })
 
-    it('should have a createToDo function', () => {
+    it('should have a createToDo function', async () => {
         expect(typeof ToDoController.createToDo).toBe('function')
     })
-    it('should call ToDoModel.create', () => {
-        ToDoController.createToDo(req, res, next)
+    it('should call ToDoModel.create', async () => {
+        await ToDoController.createToDo(req, res, next)
         expect(ToDoModel.create).toBeCalledWith(newTodo)
     })
-    it('should return 201 response code', () => {
-        ToDoController.createToDo(req, res, next)
+    it('should return 201 response code', async () => {
+        await ToDoController.createToDo(req, res, next)
         expect(res.statusCode).toBe(201)
         expect(res._isEndCalled()).toBeTruthy()
     })
-    it('should return json body in response', () => {
-        ToDoModel.create.mockReturnValue(newTodo)
-        ToDoController.createToDo(req, res, next)
+    it('should return json body in response', async () => {
+        await ToDoModel.create.mockReturnValue(newTodo)
+        await ToDoController.createToDo(req, res, next)
         expect(res._getJSONData()).toStrictEqual(newTodo)
     })
 })

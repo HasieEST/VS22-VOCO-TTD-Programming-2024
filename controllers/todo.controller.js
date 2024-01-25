@@ -1,7 +1,8 @@
 const ToDoModel = require("../models/todo.model")
 
-const createToDo = (req, res, next) => {
-    const createdModel = ToDoModel.create(req.body)
+const createToDo = async (req, res, next) => {
+    console.log(req.body)
+    const createdModel = await ToDoModel.create(req.body)
     res.status(201).json(createdModel)
 }
 

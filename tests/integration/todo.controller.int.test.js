@@ -63,4 +63,15 @@ describe(endpointUrl, () => {
             .put(endpointUrl + notExistingTodoId).send(testData)
         expect(response.statusCode).toBe(404)
     })
+    it('HTTP DELETE', async () => {
+        const response = await request(app).delete(endpointUrl + newTodoId).send()
+        expect(response.statusCode).toBe(200)
+        expect(response.body.title).toBe(testData.title)
+        expect(response.body.done).toBe(testData.done)
+    })
+    it('should return 404 on DELETE', async()=>{
+        const response = await request(app)
+            .put(endpointUrl + notExistingTodoId).send()
+        expect(response.statusCode).toBe(404)
+    })
 })

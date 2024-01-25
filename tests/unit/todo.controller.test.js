@@ -7,6 +7,9 @@ const allTodos = require('../mock_data/all-todos.json')
 ToDoModel.create = jest.fn()
 ToDoModel.find = jest.fn()
 ToDoModel.findById = jest.fn()
+ToDoModel.findByIdAndUpdate = jest.fn()
+
+const todoId = '65b243245c10517839901b23'
 
 let req, res, next
 beforeEach(() => {
@@ -94,9 +97,46 @@ describe('TodoController.getTodoById', () => {
         await ToDoController.getTodoById(req, res, next)
         expect(next).toHaveBeenCalledWith(errorMessage)
     })
-    it('should return 404 when item doesnt exist', async () => { 
+    it('should return 404 when item doesnt exist', async () => {
         ToDoModel.findById.mockReturnValue(null)
         await ToDoController.getTodoById(req, res, next)
+        expect(res.statusCode).toBe(404)
+        expect(res._isEndCalled()).toBeTruthy()
+    })
+})
+
+describe('TodoController..updateTodo', () => {
+    it('should have an updateTodo function', () => {
+        expect(typeof ToDoController.updateTodo).toBe('function')
+    })
+    it('should update with TodoModel.findByIdAndUpdate', async () => {
+        req.params.todoId = todoId
+        req.body = newTodo
+        await ToDoController.updateTodo(req, res, next)
+        expect(ToDoModel.findByIdAndUpdate).toHaveBeenCalledWith(todoId, newTodo, {
+            new: true,
+            useFindAndModify: false
+        })
+    })
+    it('should return json body and response code 200', async () => {
+        req.params.todoId = todoId
+        req.body = newTodo
+        ToDoModel.findByIdAndUpdate.mockReturnValue(newTodo)
+        await ToDoController.updateTodo(req, res, next)
+        expect(res.statusCode).toBe(200)
+        expect(res._getJSONData()).toStrictEqual(newTodo)
+        expect(res._isEndCalled()).toBeTruthy()
+    })
+    it('should do error handling', async () => {
+        const errorMessage = { 'message': 'Error updating' }
+        const rejectedPromise = Promise.reject(errorMessage)
+        ToDoModel.findByIdAndUpdate.mockReturnValue(rejectedPromise)
+        await ToDoController.updateTodo(req, res, next)
+        expect(next).toHaveBeenCalledWith(errorMessage)
+    })
+    it('should return 404 when item doesnt exist', async () => {
+        ToDoModel.findByIdAndUpdate.mockReturnValue(null)
+        await ToDoController.updateTodo(req, res, next)
         expect(res.statusCode).toBe(404)
         expect(res._isEndCalled()).toBeTruthy()
     })

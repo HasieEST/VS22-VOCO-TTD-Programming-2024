@@ -5,6 +5,13 @@ const newTodo = require('../mock_data/new_todo.json')
 const endpointUrl = '/todos/'
 
 let firstTodo
+let newTodoId
+const testData = {
+    title: 'Make integfration test for PUT',
+    done: true
+}
+const notExistingTodoId = '65b253f64ac2a8896839bc65'
+
 
 describe(endpointUrl, () => {
     it('POST ' + endpointUrl, async () => {
@@ -14,6 +21,7 @@ describe(endpointUrl, () => {
         expect(response.statusCode).toBe(201)
         expect(response.body.title).toBe(newTodo.title)
         expect(response.body.done).toBe(newTodo.done)
+        newTodoId = response.body._id
     })
     it('should return error 500 on malformed data with POST' + endpointUrl, async () => {
         const response = await request(app)
@@ -31,7 +39,6 @@ describe(endpointUrl, () => {
         expect(response.body[0].title).toBeDefined()
         expect(response.body[0].done).toBeDefined()
         firstTodo = response.body[0]
-        console.log(firstTodo)
     })
     it('GET by Id ' + endpointUrl + ':todoId', async () => {
         const response = await request(app)
@@ -42,7 +49,18 @@ describe(endpointUrl, () => {
     })
     it('GET todoby id doesnt exist' + endpointUrl + ':todoId', async () => {
         const response = await request(app)
-            .get(endpointUrl + '65b253f64ac2a8896839bc65')
+            .get(endpointUrl + notExistingTodoId)
+        expect(response.statusCode).toBe(404)
+    })
+    it('PUT' + endpointUrl, async () => {
+        const response = await request(app).put(endpointUrl + newTodoId).send(testData)
+        expect(response.statusCode).toBe(200)
+        expect(response.body.title).toBe(testData.title)
+        expect(response.body.done).toBe(testData.done)
+    })
+    it('should return 404 on PUT' + endpointUrl, async()=>{
+        const response = await request(app)
+            .put(endpointUrl + notExistingTodoId).send(testData)
         expect(response.statusCode).toBe(404)
     })
 })
